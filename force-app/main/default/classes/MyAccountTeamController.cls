@@ -60,21 +60,22 @@ public with sharing class MyAccountTeamController {
                 teamMembers.add(ownerMember);
             }
 
-            // Get Account Team Members
-            List<AccountTeamMember> accountTeam = [
-                SELECT Id, UserId, User.Name, User.Title, User.Email, TeamMemberRole
-                FROM AccountTeamMember
-                WHERE AccountId = :accountId
-                AND UserId != :ownerId
-                ORDER BY User.Name
+            // Get Account Team Members from custom object (accessible in Experience Cloud)
+            List<Account_Team_Member__c> accountTeam = [
+                SELECT Id, Team_Member_User__c, Team_Member_User__r.Name,
+                       Team_Member_User__r.Title, Team_Member_User__r.Email, Role__c
+                FROM Account_Team_Member__c
+                WHERE Account__c = :accountId
+                AND Team_Member_User__c != :ownerId
+                ORDER BY Team_Member_User__r.Name
             ];
 
-            for (AccountTeamMember atm : accountTeam) {
+            for (Account_Team_Member__c atm : accountTeam) {
                 TeamMember member = new TeamMember();
-                member.id = atm.UserId;
-                member.name = atm.User.Name;
-                member.title = atm.User.Title;
-                member.email = atm.User.Email;
+                member.id = atm.Team_Member_User__c;
+                member.name = atm.Team_Member_User__r.Name;
+                member.title = atm.Team_Member_User__r.Title;
+                member.email = atm.Team_Member_User__r.Email;
                 member.contentKey = null; // CMS integration - set if field exists
                 member.isOwner = false;
                 teamMembers.add(member);

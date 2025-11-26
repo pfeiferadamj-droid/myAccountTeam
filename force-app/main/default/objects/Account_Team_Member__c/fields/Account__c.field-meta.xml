@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Account__c</fullName>
+    <label>Account</label>
+    <type>MasterDetail</type>
+    <required>true</required>
+    <referenceTo>Account</referenceTo>
+    <relationshipLabel>Team Members</relationshipLabel>
+    <relationshipName>Team_Members</relationshipName>
+    <writeRequiresMasterRead>false</writeRequiresMasterRead>
+</CustomField>
