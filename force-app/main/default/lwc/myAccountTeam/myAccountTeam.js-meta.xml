@@ -6,11 +6,6 @@
         <target>lightningCommunity__Page</target>
         <target>lightningCommunity__Default</target>
     </targets>
-    <targetConfigs>
-        <targetConfig targets="lightningCommunity__Default">
-            <property name="title" type="String" label="Component Title" default="My Team"/>
-        </targetConfig>
-    </targetConfigs>
     <masterLabel>My Account Team</masterLabel>
     <description>Displays account team members and owner with contact information for B2B Commerce my-account page</description>
 </LightningComponentBundle>
