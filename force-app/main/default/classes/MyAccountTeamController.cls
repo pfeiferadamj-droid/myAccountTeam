@@ -39,26 +39,30 @@ public with sharing class MyAccountTeamController {
 
             Id ownerId = userAccount.OwnerId;
 
-            // Get Account Owner details
-            User accountOwner = [
-                SELECT Id, Name, Title, Email, SmallPhotoUrl, ContentKey__c
+            // Get Account Owner details (query as list to avoid exception)
+            List<User> accountOwners = [
+                SELECT Id, Name, Title, Email, SmallPhotoUrl
                 FROM User
                 WHERE Id = :ownerId
                 LIMIT 1
             ];
 
-            TeamMember ownerMember = new TeamMember();
-            ownerMember.id = accountOwner.Id;
-            ownerMember.name = accountOwner.Name;
-            ownerMember.title = accountOwner.Title;
-            ownerMember.email = accountOwner.Email;
-            ownerMember.contentKey = accountOwner.ContentKey__c;
-            ownerMember.isOwner = true;
-            teamMembers.add(ownerMember);
+            // Add Account Owner if it's a User
+            if (!accountOwners.isEmpty()) {
+                User accountOwner = accountOwners[0];
+                TeamMember ownerMember = new TeamMember();
+                ownerMember.id = accountOwner.Id;
+                ownerMember.name = accountOwner.Name;
+                ownerMember.title = accountOwner.Title;
+                ownerMember.email = accountOwner.Email;
+                ownerMember.contentKey = null; // Will be set separately if field exists
+                ownerMember.isOwner = true;
+                teamMembers.add(ownerMember);
+            }
 
             // Get Account Team Members
             List<AccountTeamMember> accountTeam = [
-                SELECT Id, UserId, User.Name, User.Title, User.Email, User.ContentKey__c, TeamMemberRole
+                SELECT Id, UserId, User.Name, User.Title, User.Email, TeamMemberRole
                 FROM AccountTeamMember
                 WHERE AccountId = :accountId
                 AND UserId != :ownerId
@@ -71,7 +75,7 @@ public with sharing class MyAccountTeamController {
                 member.name = atm.User.Name;
                 member.title = atm.User.Title;
                 member.email = atm.User.Email;
-                member.contentKey = atm.User.ContentKey__c;
+                member.contentKey = null; // CMS integration - set if field exists
                 member.isOwner = false;
                 teamMembers.add(member);
             }
