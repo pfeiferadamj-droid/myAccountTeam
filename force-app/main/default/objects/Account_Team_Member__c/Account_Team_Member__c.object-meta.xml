@@ -9,5 +9,11 @@
     </nameField>
     <deploymentStatus>Deployed</deploymentStatus>
     <sharingModel>ControlledByParent</sharingModel>
+    <visibility>Public</visibility>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
     <description>Custom object to store Account Team Members accessible from Experience Cloud sites</description>
 </CustomObject>

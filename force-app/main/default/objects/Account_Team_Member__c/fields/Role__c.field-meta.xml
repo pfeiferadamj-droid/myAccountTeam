@@ -5,4 +5,6 @@
     <type>Text</type>
     <length>255</length>
     <required>false</required>
+    <externalId>false</externalId>
+    <unique>false</unique>
 </CustomField>

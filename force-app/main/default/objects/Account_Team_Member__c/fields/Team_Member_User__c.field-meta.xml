@@ -7,4 +7,6 @@
     <referenceTo>User</referenceTo>
     <relationshipLabel>Account Team Memberships</relationshipLabel>
     <relationshipName>Account_Team_Memberships</relationshipName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <externalId>false</externalId>
 </CustomField>
