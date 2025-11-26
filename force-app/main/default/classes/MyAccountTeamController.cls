@@ -14,21 +14,30 @@ public with sharing class MyAccountTeamController {
         List<TeamMember> teamMembers = new List<TeamMember>();
 
         try {
-            // Get the current user's account
+            // Get the current user's contact and account (for B2B Commerce users)
             User currentUser = [
-                SELECT AccountId, Account.OwnerId
+                SELECT Id, ContactId, Contact.AccountId
                 FROM User
                 WHERE Id = :UserInfo.getUserId()
-                AND AccountId != null
                 LIMIT 1
             ];
 
-            if (currentUser.AccountId == null) {
+            // Check if user has a contact with an account (B2B Commerce scenario)
+            if (currentUser.ContactId == null || currentUser.Contact.AccountId == null) {
                 return teamMembers;
             }
 
-            Id accountId = currentUser.AccountId;
-            Id ownerId = currentUser.Account.OwnerId;
+            Id accountId = currentUser.Contact.AccountId;
+
+            // Get Account Owner
+            Account userAccount = [
+                SELECT OwnerId
+                FROM Account
+                WHERE Id = :accountId
+                LIMIT 1
+            ];
+
+            Id ownerId = userAccount.OwnerId;
 
             // Get Account Owner details
             User accountOwner = [
