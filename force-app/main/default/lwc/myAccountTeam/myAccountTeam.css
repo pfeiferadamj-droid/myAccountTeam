@@ -1,0 +1,146 @@
+.my-account-team {
+    padding: 1.5rem;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team-header {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #080707;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e5e5e5;
+}
+
+.loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.error-message {
+    padding: 1rem;
+    background-color: #fef5f5;
+    border-left: 4px solid #c23934;
+    color: #c23934;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.no-team-message {
+    padding: 2rem;
+    text-align: center;
+    color: #706e6b;
+    font-style: italic;
+}
+
+.team-members-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.team-member-card {
+    background-color: #fafaf9;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 1.25rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.team-member-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.member-content {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.member-photo {
+    flex-shrink: 0;
+}
+
+.member-photo img {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e5e5;
+}
+
+.member-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.member-name {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #080707;
+    margin: 0 0 0.25rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.owner-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: #0176d3;
+    color: #ffffff;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.member-title {
+    font-size: 0.875rem;
+    color: #706e6b;
+    margin: 0 0 0.5rem 0;
+}
+
+.member-email {
+    font-size: 0.875rem;
+    color: #0176d3;
+    text-decoration: none;
+    word-break: break-word;
+}
+
+.member-email:hover {
+    text-decoration: underline;
+}
+
+.contact-button-container {
+    display: flex;
+    justify-content: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e5e5;
+}
+
+.contact-team-button {
+    min-width: 200px;
+}
+
+@media (max-width: 768px) {
+    .team-members-container {
+        grid-template-columns: 1fr;
+    }
+
+    .my-account-team {
+        padding: 1rem;
+    }
+
+    .team-header {
+        font-size: 1.5rem;
+    }
+}

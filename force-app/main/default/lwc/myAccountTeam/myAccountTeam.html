@@ -1,0 +1,63 @@
+<template>
+    <div class="my-account-team">
+        <h2 class="team-header">My Team</h2>
+
+        <template if:true={isLoading}>
+            <div class="loading-spinner">
+                <lightning-spinner alternative-text="Loading team members..." size="small"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:true={error}>
+            <div class="error-message">
+                <p>{error}</p>
+            </div>
+        </template>
+
+        <template if:true={hasTeamMembers}>
+            <div class="team-members-container">
+                <template for:each={teamMembers} for:item="member">
+                    <div key={member.id} class="team-member-card">
+                        <div class="member-content">
+                            <template if:true={member.contentKey}>
+                                <div class="member-photo">
+                                    <img src={member.photoUrl} alt={member.name} />
+                                </div>
+                            </template>
+                            <div class="member-info">
+                                <h3 class="member-name">
+                                    {member.name}
+                                    <template if:true={member.isOwner}>
+                                        <span class="owner-badge">Account Owner</span>
+                                    </template>
+                                </h3>
+                                <template if:true={member.title}>
+                                    <p class="member-title">{member.title}</p>
+                                </template>
+                                <template if:true={member.email}>
+                                    <a href={member.mailtoLink} class="member-email">{member.email}</a>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="contact-button-container">
+                <lightning-button
+                    variant="brand"
+                    label="Contact My Team"
+                    title="Send email to all team members"
+                    onclick={handleContactTeam}
+                    class="contact-team-button">
+                </lightning-button>
+            </div>
+        </template>
+
+        <template if:true={showNoTeamMessage}>
+            <div class="no-team-message">
+                <p>No team members found for your account.</p>
+            </div>
+        </template>
+    </div>
+</template>
