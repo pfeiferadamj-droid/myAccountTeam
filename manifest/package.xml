@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package xmlns="http://soap.sforce.com/2006/04/metadata">
+    <types>
+        <members>MyAccountTeamController</members>
+        <name>ApexClass</name>
+    </types>
+    <types>
+        <members>Account_Team_Member__c</members>
+        <name>CustomObject</name>
+    </types>
+    <types>
+        <members>myAccountTeam</members>
+        <name>LightningComponentBundle</name>
+    </types>
+    <version>60.0</version>
+</Package>
