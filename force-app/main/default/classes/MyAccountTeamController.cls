@@ -62,13 +62,14 @@ public with sharing class MyAccountTeamController {
 
             // Get Account Team Members from custom object (accessible in Experience Cloud)
             List<My_Account_Team_Member__c> accountTeam = [
-                SELECT Id, Team_Member_User__c, Team_Member_User__r.Name,
-                       Team_Member_User__r.Title, Team_Member_User__r.Email, Role__c
-                FROM Account_Team_Member__c
-                WHERE Account__c = :accountId
-                AND Team_Member_User__c != :ownerId
-                ORDER BY Team_Member_User__r.Name
-            ];
+    SELECT Id, Team_Member_User__c, Team_Member_User__r.Name,
+           Team_Member_User__r.Title, Team_Member_User__r.Email, Role__c
+    FROM My_Account_Team_Member__c
+    WHERE Account__c = :accountId
+    AND Team_Member_User__c != :ownerId
+    ORDER BY Team_Member_User__r.Name
+];
+
 
             for (My_Account_Team_Member__c atm : accountTeam) {
                 TeamMember member = new TeamMember();
