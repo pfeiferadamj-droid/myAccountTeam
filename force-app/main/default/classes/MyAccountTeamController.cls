@@ -61,7 +61,7 @@ public with sharing class MyAccountTeamController {
             }
 
             // Get Account Team Members from custom object (accessible in Experience Cloud)
-            List<Account_Team_Member__c> accountTeam = [
+            List<My_Account_Team_Member__c> accountTeam = [
                 SELECT Id, Team_Member_User__c, Team_Member_User__r.Name,
                        Team_Member_User__r.Title, Team_Member_User__r.Email, Role__c
                 FROM Account_Team_Member__c
@@ -70,7 +70,7 @@ public with sharing class MyAccountTeamController {
                 ORDER BY Team_Member_User__r.Name
             ];
 
-            for (Account_Team_Member__c atm : accountTeam) {
+            for (My_Account_Team_Member__c atm : accountTeam) {
                 TeamMember member = new TeamMember();
                 member.id = atm.Team_Member_User__c;
                 member.name = atm.Team_Member_User__r.Name;
