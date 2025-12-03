@@ -11,7 +11,7 @@ public with sharing class MyAccountTeamController {
 
     // Helper class without sharing to query User fields that may be restricted by FLS
     private without sharing class UserFieldAccessor {
-        public static List<User> getUserDetails(Set<Id> userIds) {
+        public List<User> getUserDetails(Set<Id> userIds) {
             return [
                 SELECT Id, Name, Title, Email
                 FROM User
@@ -51,7 +51,8 @@ public with sharing class MyAccountTeamController {
             Id ownerId = userAccount.OwnerId;
 
             // Get Account Owner details using without sharing helper to bypass FLS restrictions
-            List<User> accountOwners = UserFieldAccessor.getUserDetails(new Set<Id>{ownerId});
+            UserFieldAccessor accessor = new UserFieldAccessor();
+            List<User> accountOwners = accessor.getUserDetails(new Set<Id>{ownerId});
 
             // Add Account Owner if it's a User
             if (!accountOwners.isEmpty()) {
