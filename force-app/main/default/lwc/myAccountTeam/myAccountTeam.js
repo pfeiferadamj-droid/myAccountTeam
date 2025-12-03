@@ -33,22 +33,12 @@ export default class MyAccountTeam extends LightningElement {
     }
 
     getCMSImageUrl(contentKey) {
-        // Debug: Log all possible URL patterns to test
-        const patterns = [
-            `/sfc/servlet.shepherd/version/download/${contentKey}`,
-            `/sfc/servlet.shepherd/version/renditionDownload?rendition=THUMB720BY480&versionId=${contentKey}`,
-            `/cms/delivery/media/${contentKey}`,
-            `/sfsites/c/sfc/servlet.shepherd/version/download/${contentKey}`,
-            `/servlet/servlet.FileDownload?file=${contentKey}`,
-        ];
+        // CMS Delivery API format (Salesforce B2B Commerce)
+        // Update channelId and oid with your org's values if these don't work
+        const channelId = '0apbb0000000X43AAE';  // Your Experience Cloud channel ID
+        const oid = '00Dbb000002OTxNEAW';        // Your organization ID
 
-        console.log('Testing image URLs for contentKey:', contentKey);
-        patterns.forEach((url, index) => {
-            console.log(`Pattern ${index + 1}: ${url}`);
-        });
-
-        // Try pattern 1 first (direct download)
-        return patterns[0];
+        return `/cms/delivery/media/${contentKey}?channelId=${channelId}&oid=${oid}`;
     }
 
     get hasTeamMembers() {
