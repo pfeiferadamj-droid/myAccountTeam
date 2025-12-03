@@ -9,6 +9,17 @@ public with sharing class MyAccountTeamController {
         @AuraEnabled public Boolean isOwner;
     }
 
+    // Helper class without sharing to query User fields that may be restricted by FLS
+    private without sharing class UserFieldAccessor {
+        public static List<User> getUserDetails(Set<Id> userIds) {
+            return [
+                SELECT Id, Name, Title, Email
+                FROM User
+                WHERE Id IN :userIds
+            ];
+        }
+    }
+
     @AuraEnabled(cacheable=true)
     public static List<TeamMember> getAccountTeamMembers() {
         List<TeamMember> teamMembers = new List<TeamMember>();
@@ -39,13 +50,8 @@ public with sharing class MyAccountTeamController {
 
             Id ownerId = userAccount.OwnerId;
 
-            // Get Account Owner details (query as list to avoid exception)
-            List<User> accountOwners = [
-                SELECT Id, Name, Title, Email, SmallPhotoUrl
-                FROM User
-                WHERE Id = :ownerId
-                LIMIT 1
-            ];
+            // Get Account Owner details using without sharing helper to bypass FLS restrictions
+            List<User> accountOwners = UserFieldAccessor.getUserDetails(new Set<Id>{ownerId});
 
             // Add Account Owner if it's a User
             if (!accountOwners.isEmpty()) {
@@ -67,9 +73,10 @@ public with sharing class MyAccountTeamController {
             }
 
             // Get Account Team Members from custom object (accessible in Experience Cloud)
+            // Using custom fields Member_Email__c and Member_Title__c to avoid User FLS issues
             List<My_Account_Team_Member__c> accountTeam = [
                 SELECT Id, Team_Member_User__c, Team_Member_User__r.Name,
-                       Team_Member_User__r.Title, Team_Member_User__r.Email, Role__c
+                       Member_Email__c, Member_Title__c, Role__c
                 FROM My_Account_Team_Member__c
                 WHERE Account__c = :accountId
                 AND Team_Member_User__c != :ownerId
@@ -79,15 +86,15 @@ public with sharing class MyAccountTeamController {
                 TeamMember member = new TeamMember();
                 member.id = atm.Team_Member_User__c;
                 member.name = atm.Team_Member_User__r.Name;
-                member.title = atm.Team_Member_User__r.Title;
-                member.email = atm.Team_Member_User__r.Email;
+                member.title = atm.Member_Title__c;
+                member.email = atm.Member_Email__c;
                 member.contentKey = null; // CMS integration - set if field exists
                 member.isOwner = false;
 
                 // Debug logging
                 System.debug('Team Member: ' + atm.Team_Member_User__r.Name);
-                System.debug('Member Title: ' + atm.Team_Member_User__r.Title);
-                System.debug('Member Email: ' + atm.Team_Member_User__r.Email);
+                System.debug('Member Title: ' + atm.Member_Title__c);
+                System.debug('Member Email: ' + atm.Member_Email__c);
 
                 teamMembers.add(member);
             }

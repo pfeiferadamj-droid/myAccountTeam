@@ -34,10 +34,14 @@ Before deployment, ensure you have:
 
 1. **Custom Object**: Create a custom object `My_Account_Team_Member__c`
    - This object is used instead of the standard `AccountTeamMember` because the standard object is not accessible from Experience Cloud sites
-   - Fields needed:
+   - **Required fields:**
      - `Account__c` (Master-Detail to Account)
      - `Team_Member_User__c` (Lookup to User)
-     - `Role__c` (Text field for member role - optional)
+     - `Member_Email__c` (Text, 255) - Stores team member's email address
+     - `Member_Title__c` (Text, 255) - Stores team member's job title
+   - **Optional fields:**
+     - `Role__c` (Text, 255) - Team member role (e.g., "Account Manager")
+     - `Member_Name__c` (Text, 255) - Display name override
 
 2. **Data Migration**: If you have existing Account Team members, you'll need to migrate them to the custom object
    - See "Migrating from Standard Account Team" section below
@@ -87,10 +91,15 @@ If you have existing data in the standard `AccountTeamMember` object, use this s
 ```apex
 List<My_Account_Team_Member__c> customTeamMembers = new List<My_Account_Team_Member__c>();
 
-for (AccountTeamMember atm : [SELECT AccountId, UserId, TeamMemberRole FROM AccountTeamMember]) {
+for (AccountTeamMember atm : [
+    SELECT AccountId, UserId, User.Email, User.Title, TeamMemberRole
+    FROM AccountTeamMember
+]) {
     My_Account_Team_Member__c custom = new My_Account_Team_Member__c();
     custom.Account__c = atm.AccountId;
     custom.Team_Member_User__c = atm.UserId;
+    custom.Member_Email__c = atm.User.Email;
+    custom.Member_Title__c = atm.User.Title;
     custom.Role__c = atm.TeamMemberRole;
     customTeamMembers.add(custom);
 }
