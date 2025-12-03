@@ -73,10 +73,10 @@ public with sharing class MyAccountTeamController {
             }
 
             // Get Account Team Members from custom object (accessible in Experience Cloud)
-            // Using custom fields Member_Email__c and Member_Title__c to avoid User FLS issues
+            // Using custom fields to avoid User FLS issues
             List<My_Account_Team_Member__c> accountTeam = [
                 SELECT Id, Team_Member_User__c, Team_Member_User__r.Name,
-                       Member_Email__c, Member_Title__c, Role__c
+                       Member_Email__c, Member_Title__c, Member_ContentKey__c, Role__c
                 FROM My_Account_Team_Member__c
                 WHERE Account__c = :accountId
                 AND Team_Member_User__c != :ownerId
@@ -88,13 +88,14 @@ public with sharing class MyAccountTeamController {
                 member.name = atm.Team_Member_User__r.Name;
                 member.title = atm.Member_Title__c;
                 member.email = atm.Member_Email__c;
-                member.contentKey = null; // CMS integration - set if field exists
+                member.contentKey = atm.Member_ContentKey__c;
                 member.isOwner = false;
 
                 // Debug logging
                 System.debug('Team Member: ' + atm.Team_Member_User__r.Name);
                 System.debug('Member Title: ' + atm.Member_Title__c);
                 System.debug('Member Email: ' + atm.Member_Email__c);
+                System.debug('Member ContentKey: ' + atm.Member_ContentKey__c);
 
                 teamMembers.add(member);
             }

@@ -40,16 +40,16 @@ Before deployment, ensure you have:
      - `Member_Email__c` (Text, 255) - Stores team member's email address
      - `Member_Title__c` (Text, 255) - Stores team member's job title
    - **Optional fields:**
+     - `Member_ContentKey__c` (Text, 255) - CMS content key for profile photo
      - `Role__c` (Text, 255) - Team member role (e.g., "Account Manager")
      - `Member_Name__c` (Text, 255) - Display name override
 
 2. **Data Migration**: If you have existing Account Team members, you'll need to migrate them to the custom object
    - See "Migrating from Standard Account Team" section below
 
-3. **Custom Field** (if using CMS photos):
-   - Create a custom field `ContentKey__c` on the User object
-   - Type: Text
-   - Purpose: Stores the CMS content key for user profile photos
+3. **Profile Photos (Optional)**:
+   - If using CMS photos, populate the `Member_ContentKey__c` field with CMS content keys
+   - No User object customization required - all data stored on custom object
 
 ## Deployment
 
@@ -101,6 +101,7 @@ for (AccountTeamMember atm : [
     custom.Member_Email__c = atm.User.Email;
     custom.Member_Title__c = atm.User.Title;
     custom.Role__c = atm.TeamMemberRole;
+    // custom.Member_ContentKey__c = ''; // Set if you have CMS content keys
     customTeamMembers.add(custom);
 }
 
