@@ -34,8 +34,19 @@ export default class MyAccountTeam extends LightningElement {
 
     getCMSImageUrl(contentKey) {
         // Construct CMS image URL using content key
-        // Adjust this based on your CMS configuration
-        return `/sfc/servlet.shepherd/version/renditionDownload?rendition=ORIGINAL_Png&versionId=${contentKey}`;
+        // For Salesforce B2B Commerce, try these URL patterns:
+
+        // Option 1: Standard Salesforce Files/Content URL with THUMB rendition
+        // return `/sfc/servlet.shepherd/version/renditionDownload?rendition=THUMB720BY480&versionId=${contentKey}`;
+
+        // Option 2: Original image without rendition specified
+        return `/sfc/servlet.shepherd/version/download/${contentKey}`;
+
+        // Option 3: CMS Delivery API (if using managed content)
+        // return `/cms/delivery/media/${contentKey}`;
+
+        // Option 4: Direct rendition download
+        // return `/sfc/servlet.shepherd/version/renditionDownload?rendition=ORIGINAL_Jpg&versionId=${contentKey}`;
     }
 
     get hasTeamMembers() {
