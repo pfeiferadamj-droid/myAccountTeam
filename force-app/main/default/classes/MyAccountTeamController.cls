@@ -29,48 +29,16 @@ public with sharing class MyAccountTeamController {
 
             Id accountId = currentUser.Contact.AccountId;
 
-            // Get Account Owner
-            Account userAccount = [
-                SELECT OwnerId
-                FROM Account
-                WHERE Id = :accountId
-                LIMIT 1
-            ];
-
-            Id ownerId = userAccount.OwnerId;
-
-            // Get Account Owner details using without sharing helper to bypass FLS restrictions
-            List<User> accountOwners = UserFieldAccessor.getUserDetails(new Set<Id>{ownerId});
-
-            // Add Account Owner if it's a User
-            if (!accountOwners.isEmpty()) {
-                User accountOwner = accountOwners[0];
-                TeamMember ownerMember = new TeamMember();
-                ownerMember.id = accountOwner.Id;
-                ownerMember.name = accountOwner.Name;
-                ownerMember.title = accountOwner.Title;
-                ownerMember.email = accountOwner.Email;
-                ownerMember.contentKey = null; // Will be set separately if field exists
-                ownerMember.isOwner = true;
-
-                // Debug logging
-                System.debug('Account Owner: ' + accountOwner.Name);
-                System.debug('Owner Title: ' + accountOwner.Title);
-                System.debug('Owner Email: ' + accountOwner.Email);
-
-                teamMembers.add(ownerMember);
-            }
-
-            // Get Account Team Members from custom object (accessible in Experience Cloud)
-            // Using custom fields to avoid User FLS issues
+            // Get all team members from custom object (including owner)
             List<My_Account_Team_Member__c> accountTeam = [
                 SELECT Id, Team_Member_User__c, Team_Member_User__r.Name,
-                       Member_Email__c, Member_Title__c, Member_ContentKey__c, Role__c
+                       Member_Email__c, Member_Title__c, Member_ContentKey__c,
+                       Role__c, Is_Owner__c
                 FROM My_Account_Team_Member__c
                 WHERE Account__c = :accountId
-                AND Team_Member_User__c != :ownerId
-                ORDER BY Team_Member_User__r.Name
+                ORDER BY Is_Owner__c DESC, Team_Member_User__r.Name
             ];
+
             for (My_Account_Team_Member__c atm : accountTeam) {
                 TeamMember member = new TeamMember();
                 member.id = atm.Team_Member_User__c;
@@ -78,13 +46,14 @@ public with sharing class MyAccountTeamController {
                 member.title = atm.Member_Title__c;
                 member.email = atm.Member_Email__c;
                 member.contentKey = atm.Member_ContentKey__c;
-                member.isOwner = false;
+                member.isOwner = atm.Is_Owner__c != null ? atm.Is_Owner__c : false;
 
                 // Debug logging
                 System.debug('Team Member: ' + atm.Team_Member_User__r.Name);
                 System.debug('Member Title: ' + atm.Member_Title__c);
                 System.debug('Member Email: ' + atm.Member_Email__c);
                 System.debug('Member ContentKey: ' + atm.Member_ContentKey__c);
+                System.debug('Is Owner: ' + member.isOwner);
 
                 teamMembers.add(member);
             }

@@ -39,6 +39,7 @@ Before deployment, ensure you have:
      - `Team_Member_User__c` (Lookup to User)
      - `Member_Email__c` (Text, 255) - Stores team member's email address
      - `Member_Title__c` (Text, 255) - Stores team member's job title
+     - `Is_Owner__c` (Checkbox) - Indicates if this team member is the Account Owner
    - **Optional fields:**
      - `Member_ContentKey__c` (Text, 255) - CMS content key for profile photo
      - `Role__c` (Text, 255) - Team member role (e.g., "Account Manager")
