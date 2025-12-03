@@ -57,6 +57,12 @@ public with sharing class MyAccountTeamController {
                 ownerMember.email = accountOwner.Email;
                 ownerMember.contentKey = null; // Will be set separately if field exists
                 ownerMember.isOwner = true;
+
+                // Debug logging
+                System.debug('Account Owner: ' + accountOwner.Name);
+                System.debug('Owner Title: ' + accountOwner.Title);
+                System.debug('Owner Email: ' + accountOwner.Email);
+
                 teamMembers.add(ownerMember);
             }
 
@@ -77,8 +83,17 @@ public with sharing class MyAccountTeamController {
                 member.email = atm.Team_Member_User__r.Email;
                 member.contentKey = null; // CMS integration - set if field exists
                 member.isOwner = false;
+
+                // Debug logging
+                System.debug('Team Member: ' + atm.Team_Member_User__r.Name);
+                System.debug('Member Title: ' + atm.Team_Member_User__r.Title);
+                System.debug('Member Email: ' + atm.Team_Member_User__r.Email);
+
                 teamMembers.add(member);
             }
+
+            // Debug total results
+            System.debug('Total team members returned: ' + teamMembers.size());
 
         } catch (Exception e) {
             System.debug('Error fetching account team: ' + e.getMessage());
