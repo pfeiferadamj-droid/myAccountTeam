@@ -32,12 +32,12 @@ A Salesforce Lightning Web Component (LWC) designed for B2B Commerce websites th
 
 Before deployment, ensure you have:
 
-1. **Custom Object**: The package includes a custom object `Account_Team_Member__c`
+1. **Custom Object**: Create a custom object `My_Account_Team_Member__c`
    - This object is used instead of the standard `AccountTeamMember` because the standard object is not accessible from Experience Cloud sites
-   - Fields included:
+   - Fields needed:
      - `Account__c` (Master-Detail to Account)
      - `Team_Member_User__c` (Lookup to User)
-     - `Role__c` (Text field for member role)
+     - `Role__c` (Text field for member role - optional)
 
 2. **Data Migration**: If you have existing Account Team members, you'll need to migrate them to the custom object
    - See "Migrating from Standard Account Team" section below
@@ -63,7 +63,7 @@ Before deployment, ensure you have:
 
 3. **Grant object access**:
    - Go to Setup → Profiles or Permission Sets
-   - Grant Read access to `Account_Team_Member__c` for your Experience Cloud users
+   - Grant Read access to `My_Account_Team_Member__c` for your Experience Cloud users
    - Grant access to all fields on the object
 
 ### Using VS Code
@@ -85,10 +85,10 @@ Before deployment, ensure you have:
 If you have existing data in the standard `AccountTeamMember` object, use this script in Execute Anonymous Apex:
 
 ```apex
-List<Account_Team_Member__c> customTeamMembers = new List<Account_Team_Member__c>();
+List<My_Account_Team_Member__c> customTeamMembers = new List<My_Account_Team_Member__c>();
 
 for (AccountTeamMember atm : [SELECT AccountId, UserId, TeamMemberRole FROM AccountTeamMember]) {
-    Account_Team_Member__c custom = new Account_Team_Member__c();
+    My_Account_Team_Member__c custom = new My_Account_Team_Member__c();
     custom.Account__c = atm.AccountId;
     custom.Team_Member_User__c = atm.UserId;
     custom.Role__c = atm.TeamMemberRole;
@@ -101,7 +101,7 @@ if (!customTeamMembers.isEmpty()) {
 }
 ```
 
-Or use Data Loader to export from `AccountTeamMember` and import to `Account_Team_Member__c`
+Or use Data Loader to export from `AccountTeamMember` and import to `My_Account_Team_Member__c`
 
 ## Configuration
 

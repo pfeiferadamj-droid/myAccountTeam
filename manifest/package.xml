@@ -5,7 +5,7 @@
         <name>ApexClass</name>
     </types>
     <types>
-        <members>Account_Team_Member__c</members>
+        <members>My_Account_Team_Member__c</members>
         <name>CustomObject</name>
     </types>
     <types>
