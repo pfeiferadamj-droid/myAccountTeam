@@ -8,8 +8,8 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
     @api accountId;
     @api maxOrders = 50;
     @api cardTitle = 'My Orders';
-    @api showReorderButton = true;
-    @api showViewDetailsButton = true;
+    @api showReorderButton;
+    @api showViewDetailsButton;
 
     @track orders = [];
     @track isLoading = true;
@@ -165,5 +165,13 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
 
     get noOrdersMessage() {
         return 'No orders found for this account.';
+    }
+
+    get shouldShowReorderButton() {
+        return this.showReorderButton !== false;
+    }
+
+    get shouldShowViewDetailsButton() {
+        return this.showViewDetailsButton !== false;
     }
 }

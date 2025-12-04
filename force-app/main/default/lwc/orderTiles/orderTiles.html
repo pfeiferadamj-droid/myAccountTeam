@@ -96,7 +96,7 @@
 
                             <!-- Action Buttons -->
                             <div class="action-buttons">
-                                <template if:true={showViewDetailsButton}>
+                                <template if:true={shouldShowViewDetailsButton}>
                                     <lightning-button
                                         label="View Details"
                                         variant="neutral"
@@ -106,7 +106,7 @@
                                     </lightning-button>
                                 </template>
 
-                                <template if:true={showReorderButton}>
+                                <template if:true={shouldShowReorderButton}>
                                     <lightning-button
                                         label="Start Reorder"
                                         variant="brand"
@@ -218,7 +218,7 @@
                             variant="neutral"
                             onclick={handleCloseDetails}>
                         </lightning-button>
-                        <template if:true={showReorderButton}>
+                        <template if:true={shouldShowReorderButton}>
                             <lightning-button
                                 label="Reorder"
                                 variant="brand"
