@@ -26,11 +26,17 @@
     margin-bottom: 1.5rem;
 }
 
+.filters-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
 .search-box {
+    flex: 1;
     display: flex;
     gap: 0.75rem;
     align-items: flex-end;
-    margin-bottom: 1rem;
 }
 
 .search-box lightning-input {
@@ -42,37 +48,39 @@
 }
 
 .date-filters {
+    flex: 1;
     display: flex;
-    gap: 0.75rem;
     align-items: flex-end;
-    flex-wrap: wrap;
 }
 
 .date-filters lightning-combobox {
-    flex: 1;
-    min-width: 200px;
+    width: 100%;
+}
+
+.clear-filters-row {
+    display: flex;
+    justify-content: flex-start;
 }
 
 .clear-button {
-    margin-bottom: 0.125rem;
+    margin-bottom: 0;
 }
 
 @media (max-width: 768px) {
-    .search-box,
-    .date-filters {
+    .filters-row {
         flex-direction: column;
-        align-items: stretch;
     }
 
-    .search-box lightning-input,
-    .date-filters lightning-combobox {
+    .search-box {
+        flex-direction: column;
+    }
+
+    .search-button {
         width: 100%;
     }
 
-    .search-button,
     .clear-button {
         width: 100%;
-        margin-bottom: 0;
     }
 }
 
@@ -245,6 +253,7 @@
 /* Action Buttons */
 .action-buttons {
     display: flex;
+    justify-content: space-between;
     gap: 0.75rem;
     margin-top: auto;
     padding-top: 1rem;
@@ -252,7 +261,7 @@
 }
 
 .action-button {
-    flex: 1;
+    min-width: 150px;
 }
 
 /* No Orders State */

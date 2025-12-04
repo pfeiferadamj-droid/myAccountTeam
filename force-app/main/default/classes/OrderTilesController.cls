@@ -74,7 +74,7 @@ public with sharing class OrderTilesController {
                           '(SELECT Id, Product2Id, Product2.Name, Product2.ProductCode, ' +
                           'Product2.StockKeepingUnit, Product2.Family, ' +
                           'Quantity, UnitPrice, TotalPrice, ServiceDate, ' +
-                          'Description, OrderItemNumber ' +
+                          'Description, OrderItemNumber, Production_Status_SAP__c ' +
                           'FROM OrderItems ORDER BY OrderItemNumber) ' +
                           'FROM Order ' +
                           'WHERE AccountId = :accountId AND Status != \'Draft\'';
@@ -167,7 +167,7 @@ public with sharing class OrderTilesController {
                 lineItem.unitPrice = oi.UnitPrice;
                 lineItem.totalPrice = oi.TotalPrice;
                 lineItem.estimatedDeliveryDate = oi.ServiceDate;
-                lineItem.lineStatus = 'Active'; // Customize based on your status field
+                lineItem.lineStatus = (String) oi.get('Production_Status_SAP__c');
 
                 // Track earliest delivery date (standard)
                 if (oi.ServiceDate != null) {

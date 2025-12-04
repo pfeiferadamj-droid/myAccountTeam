@@ -7,31 +7,36 @@
 
         <!-- Search and Filters -->
         <div class="filters-container">
-            <div class="search-box">
-                <lightning-input
-                    type="search"
-                    label="Search by Customer PO"
-                    value={searchTerm}
-                    onchange={handleSearchChange}
-                    onkeyup={handleSearchKeyUp}
-                    placeholder="Enter Customer PO Number...">
-                </lightning-input>
-                <lightning-button
-                    label="Search"
-                    variant="brand"
-                    onclick={handleSearch}
-                    class="search-button">
-                </lightning-button>
+            <div class="filters-row">
+                <div class="search-box">
+                    <lightning-input
+                        type="search"
+                        label="Search by Customer PO"
+                        value={searchTerm}
+                        onchange={handleSearchChange}
+                        onkeyup={handleSearchKeyUp}
+                        placeholder="Enter Customer PO Number...">
+                    </lightning-input>
+                    <lightning-button
+                        label="Search"
+                        variant="brand"
+                        onclick={handleSearch}
+                        class="search-button">
+                    </lightning-button>
+                </div>
+
+                <div class="date-filters">
+                    <lightning-combobox
+                        name="dateFilter"
+                        label="Filter by Date"
+                        value={dateFilter}
+                        options={dateFilterOptions}
+                        onchange={handleDateFilterChange}>
+                    </lightning-combobox>
+                </div>
             </div>
 
-            <div class="date-filters">
-                <lightning-combobox
-                    name="dateFilter"
-                    label="Filter by Date"
-                    value={dateFilter}
-                    options={dateFilterOptions}
-                    onchange={handleDateFilterChange}>
-                </lightning-combobox>
+            <div class="clear-filters-row">
                 <lightning-button
                     label="Clear Filters"
                     variant="neutral"
@@ -240,7 +245,7 @@
                                             </p>
                                         </template>
                                         <template if:true={lineItem.lineStatus}>
-                                            <p class="line-item-status">Status: {lineItem.lineStatus}</p>
+                                            <p class="line-item-status">Production Status: {lineItem.lineStatus}</p>
                                         </template>
                                     </div>
                                     <div class="line-item-total">
