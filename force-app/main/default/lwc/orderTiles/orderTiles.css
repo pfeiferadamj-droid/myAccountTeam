@@ -28,57 +28,56 @@
 
 .filters-row {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-}
-
-.search-box {
-    flex: 1;
-    display: flex;
     gap: 0.75rem;
     align-items: flex-end;
 }
 
+.search-box {
+    flex: 2;
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+    min-width: 0;
+}
+
 .search-box lightning-input {
     flex: 1;
+    min-width: 150px;
 }
 
 .search-button {
     margin-bottom: 0.125rem;
+    flex-shrink: 0;
 }
 
 .date-filters {
     flex: 1;
     display: flex;
     align-items: flex-end;
+    min-width: 0;
 }
 
 .date-filters lightning-combobox {
     width: 100%;
-}
-
-.clear-filters-row {
-    display: flex;
-    justify-content: flex-start;
+    min-width: 150px;
 }
 
 .clear-button {
-    margin-bottom: 0;
+    margin-bottom: 0.125rem;
+    flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
     .filters-row {
         flex-direction: column;
+        align-items: stretch;
     }
 
     .search-box {
         flex-direction: column;
     }
 
-    .search-button {
-        width: 100%;
-    }
-
+    .search-button,
     .clear-button {
         width: 100%;
     }
