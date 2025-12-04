@@ -7,7 +7,7 @@
 
 /* Header Styles */
 .component-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
 .header-title {
@@ -15,6 +15,65 @@
     font-weight: 700;
     color: #181818;
     margin: 0;
+}
+
+/* Filters Container */
+.filters-container {
+    background-color: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.search-box {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+    margin-bottom: 1rem;
+}
+
+.search-box lightning-input {
+    flex: 1;
+}
+
+.search-button {
+    margin-bottom: 0.125rem;
+}
+
+.date-filters {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.date-filters lightning-input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.clear-button {
+    margin-bottom: 0.125rem;
+}
+
+@media (max-width: 768px) {
+    .search-box,
+    .date-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box lightning-input,
+    .date-filters lightning-input {
+        width: 100%;
+    }
+
+    .search-button,
+    .clear-button {
+        width: 100%;
+        margin-bottom: 0;
+    }
 }
 
 /* Loading State */

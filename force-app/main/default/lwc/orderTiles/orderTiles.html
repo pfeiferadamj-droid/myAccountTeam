@@ -5,6 +5,47 @@
             <h2 class="header-title">{cardTitle}</h2>
         </div>
 
+        <!-- Search and Filters -->
+        <div class="filters-container">
+            <div class="search-box">
+                <lightning-input
+                    type="search"
+                    label="Search by Customer PO"
+                    value={searchTerm}
+                    onchange={handleSearchChange}
+                    onkeyup={handleSearchKeyUp}
+                    placeholder="Enter Customer PO Number...">
+                </lightning-input>
+                <lightning-button
+                    label="Search"
+                    variant="brand"
+                    onclick={handleSearch}
+                    class="search-button">
+                </lightning-button>
+            </div>
+
+            <div class="date-filters">
+                <lightning-input
+                    type="date"
+                    label="Start Date"
+                    value={startDate}
+                    onchange={handleStartDateChange}>
+                </lightning-input>
+                <lightning-input
+                    type="date"
+                    label="End Date"
+                    value={endDate}
+                    onchange={handleEndDateChange}>
+                </lightning-input>
+                <lightning-button
+                    label="Clear Filters"
+                    variant="neutral"
+                    onclick={handleClearFilters}
+                    class="clear-button">
+                </lightning-button>
+            </div>
+        </div>
+
         <!-- Loading State -->
         <template if:true={isLoading}>
             <div class="loading-container">

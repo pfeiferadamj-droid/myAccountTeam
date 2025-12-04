@@ -10,12 +10,16 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
     @api cardTitle = 'My Orders';
     @api showReorderButton;
     @api showViewDetailsButton;
+    @api webstoreId;
 
     @track orders = [];
     @track isLoading = true;
     @track error;
     @track selectedOrder;
     @track showOrderDetails = false;
+    @track searchTerm = '';
+    @track startDate;
+    @track endDate;
 
     connectedCallback() {
         this.loadOrders();
@@ -27,7 +31,10 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
 
         getCustomerOrders({
             accountId: this.accountId,
-            limitRecords: this.maxOrders
+            limitRecords: this.maxOrders,
+            searchTerm: this.searchTerm,
+            startDate: this.startDate,
+            endDate: this.endDate
         })
             .then(result => {
                 this.orders = result.map(order => ({
@@ -107,7 +114,15 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
     handleReorder(event) {
         const orderId = event.currentTarget.dataset.orderId;
 
-        initiateReorder({ orderId: orderId })
+        if (!this.webstoreId) {
+            this.showToast('Error', 'Webstore ID is required for reorder functionality', 'error');
+            return;
+        }
+
+        initiateReorder({
+            orderId: orderId,
+            webstoreId: this.webstoreId
+        })
             .then(result => {
                 this.showToast('Success', 'Items added to cart successfully', 'success');
 
@@ -175,5 +190,42 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
 
     get shouldShowViewDetailsButton() {
         return this.showViewDetailsButton !== false;
+    }
+
+    handleSearchChange(event) {
+        this.searchTerm = event.target.value;
+    }
+
+    handleSearchKeyUp(event) {
+        // Trigger search on Enter key
+        if (event.keyCode === 13) {
+            this.handleSearch();
+        }
+    }
+
+    handleSearch() {
+        this.loadOrders();
+    }
+
+    handleClearSearch() {
+        this.searchTerm = '';
+        this.loadOrders();
+    }
+
+    handleStartDateChange(event) {
+        this.startDate = event.target.value;
+        this.loadOrders();
+    }
+
+    handleEndDateChange(event) {
+        this.endDate = event.target.value;
+        this.loadOrders();
+    }
+
+    handleClearFilters() {
+        this.searchTerm = '';
+        this.startDate = null;
+        this.endDate = null;
+        this.loadOrders();
     }
 }

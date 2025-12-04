@@ -41,10 +41,19 @@ public with sharing class OrderTilesController {
      * @description Fetches orders for the current customer account
      * @param accountId The Account ID to fetch orders for
      * @param limitRecords Maximum number of orders to return
+     * @param searchTerm Search term for Customer PO Number
+     * @param startDate Start date for order date filter
+     * @param endDate End date for order date filter
      * @return List of OrderData wrapper objects
      */
     @AuraEnabled(cacheable=true)
-    public static List<OrderData> getCustomerOrders(String accountId, Integer limitRecords) {
+    public static List<OrderData> getCustomerOrders(
+        String accountId,
+        Integer limitRecords,
+        String searchTerm,
+        Date startDate,
+        Date endDate
+    ) {
         try {
             if (String.isBlank(accountId)) {
                 // Get the current user's account
@@ -57,24 +66,39 @@ public with sharing class OrderTilesController {
 
             Integer queryLimit = (limitRecords != null && limitRecords > 0) ? limitRecords : 50;
 
-            // Query orders with related line items
-            List<Order> orders = [
-                SELECT Id, OrderNumber, PoNumber, TotalAmount,
-                       EffectiveDate, Status, CreatedDate, AccountId,
-                       Customer_PO_Number_SAP__c, Production_Status_SAP__c,
-                       Revised_Delivery_Date_SAP__c,
-                       (SELECT Id, Product2Id, Product2.Name, Product2.ProductCode,
-                               Product2.StockKeepingUnit, Product2.Family,
-                               Quantity, UnitPrice, TotalPrice, ServiceDate,
-                               Description, OrderItemNumber
-                        FROM OrderItems
-                        ORDER BY OrderItemNumber)
-                FROM Order
-                WHERE AccountId = :accountId
-                  AND Status != 'Draft'
-                ORDER BY EffectiveDate DESC, CreatedDate DESC
-                LIMIT :queryLimit
-            ];
+            // Build dynamic query
+            String query = 'SELECT Id, OrderNumber, PoNumber, TotalAmount, ' +
+                          'EffectiveDate, Status, CreatedDate, AccountId, ' +
+                          'Customer_PO_Number_SAP__c, Production_Status_SAP__c, ' +
+                          'Revised_Delivery_Date_SAP__c, ' +
+                          '(SELECT Id, Product2Id, Product2.Name, Product2.ProductCode, ' +
+                          'Product2.StockKeepingUnit, Product2.Family, ' +
+                          'Quantity, UnitPrice, TotalPrice, ServiceDate, ' +
+                          'Description, OrderItemNumber ' +
+                          'FROM OrderItems ORDER BY OrderItemNumber) ' +
+                          'FROM Order ' +
+                          'WHERE AccountId = :accountId AND Status != \'Draft\'';
+
+            // Add search filter
+            if (String.isNotBlank(searchTerm)) {
+                String searchPattern = '%' + String.escapeSingleQuotes(searchTerm) + '%';
+                query += ' AND (Customer_PO_Number_SAP__c LIKE :searchPattern ' +
+                        'OR PoNumber LIKE :searchPattern ' +
+                        'OR OrderNumber LIKE :searchPattern)';
+            }
+
+            // Add date range filters
+            if (startDate != null) {
+                query += ' AND EffectiveDate >= :startDate';
+            }
+            if (endDate != null) {
+                query += ' AND EffectiveDate <= :endDate';
+            }
+
+            query += ' ORDER BY EffectiveDate DESC, CreatedDate DESC LIMIT :queryLimit';
+
+            // Execute dynamic query
+            List<Order> orders = Database.query(query);
 
             return transformOrderData(orders);
 
@@ -201,36 +225,74 @@ public with sharing class OrderTilesController {
     /**
      * @description Initiate a reorder for a given order
      * @param orderId The Order ID to reorder
-     * @return Cart ID or URL to redirect to
+     * @param webstoreId The webstore ID for B2B Commerce
+     * @return Cart ID
      */
     @AuraEnabled
-    public static String initiateReorder(String orderId) {
+    public static String initiateReorder(String orderId, String webstoreId) {
         try {
-            // This is a placeholder - implement based on your B2B Commerce setup
-            // Typically you would:
-            // 1. Get the order items
-            // 2. Create a new cart or get active cart
-            // 3. Add items to cart
-            // 4. Return cart ID or checkout URL
-
             if (String.isBlank(orderId)) {
                 throw new AuraHandledException('Order ID is required');
             }
 
-            // Query the order and items
+            // Query the order and items (excluding shipping products)
             Order originalOrder = [
                 SELECT Id, AccountId,
-                       (SELECT Product2Id, Quantity FROM OrderItems)
+                       (SELECT Product2Id, Product2.Family, Product2.ProductCode,
+                               Product2.Name, Quantity
+                        FROM OrderItems)
                 FROM Order
                 WHERE Id = :orderId
                 LIMIT 1
             ];
 
-            // TODO: Implement cart creation and item addition
-            // This will depend on your specific B2B Commerce implementation
-            // You may need to call ConnectApi.CommerceCart methods
+            // Get or create active cart
+            String effectiveAccountId = originalOrder.AccountId;
+            ConnectApi.CartSummary cartSummary;
 
-            return orderId; // Return appropriate cart ID or URL
+            try {
+                cartSummary = ConnectApi.CommerceCart.getOrCreateActiveCartSummary(
+                    webstoreId,
+                    effectiveAccountId,
+                    'active'
+                );
+            } catch (Exception e) {
+                throw new AuraHandledException('Unable to access cart: ' + e.getMessage());
+            }
+
+            // Add each non-shipping item to cart
+            Integer itemsAdded = 0;
+            for (OrderItem oi : originalOrder.OrderItems) {
+                // Skip shipping products
+                if (isShippingProduct(oi)) {
+                    continue;
+                }
+
+                try {
+                    ConnectApi.CartItemInput cartInput = new ConnectApi.CartItemInput();
+                    cartInput.productId = oi.Product2Id;
+                    cartInput.quantity = String.valueOf(oi.Quantity);
+                    cartInput.type = ConnectApi.CartItemType.PRODUCT;
+
+                    ConnectApi.CommerceCart.addItemToCart(
+                        webstoreId,
+                        effectiveAccountId,
+                        'active',
+                        cartInput
+                    );
+
+                    itemsAdded++;
+                } catch (Exception e) {
+                    System.debug('Error adding product ' + oi.Product2Id + ' to cart: ' + e.getMessage());
+                    // Continue with next item
+                }
+            }
+
+            if (itemsAdded == 0) {
+                throw new AuraHandledException('No items could be added to cart');
+            }
+
+            return cartSummary.cartId;
 
         } catch (Exception e) {
             throw new AuraHandledException('Error initiating reorder: ' + e.getMessage());

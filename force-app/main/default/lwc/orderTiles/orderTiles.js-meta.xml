@@ -14,6 +14,7 @@
     <targetConfigs>
         <targetConfig targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage,lightningCommunity__Default">
             <property name="accountId" type="String" label="Account ID" description="The Account ID to fetch orders for (leave blank to use current user's account)" />
+            <property name="webstoreId" type="String" label="Webstore ID" description="The B2B Commerce Webstore ID (required for reorder functionality)" />
             <property name="maxOrders" type="Integer" default="50" label="Maximum Orders" description="Maximum number of orders to display" />
             <property name="cardTitle" type="String" default="My Orders" label="Card Title" description="Title displayed at the top of the component" />
             <property name="showReorderButton" type="Boolean" default="true" label="Show Reorder Button" description="Display the reorder button on each order tile" />
