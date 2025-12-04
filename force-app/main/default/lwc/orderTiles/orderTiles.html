@@ -25,18 +25,13 @@
             </div>
 
             <div class="date-filters">
-                <lightning-input
-                    type="date"
-                    label="Start Date"
-                    value={startDate}
-                    onchange={handleStartDateChange}>
-                </lightning-input>
-                <lightning-input
-                    type="date"
-                    label="End Date"
-                    value={endDate}
-                    onchange={handleEndDateChange}>
-                </lightning-input>
+                <lightning-combobox
+                    name="dateFilter"
+                    label="Filter by Date"
+                    value={dateFilter}
+                    options={dateFilterOptions}
+                    onchange={handleDateFilterChange}>
+                </lightning-combobox>
                 <lightning-button
                     label="Clear Filters"
                     variant="neutral"
@@ -73,9 +68,11 @@
                             <!-- Customer PO Number and Status -->
                             <div class="order-header">
                                 <h3 class="order-number">{order.displayCustomerPO}</h3>
-                                <span class={order.statusClass}>
-                                    {order.displayStatus}
-                                </span>
+                                <template if:true={order.displayStatus}>
+                                    <span class={order.statusClass}>
+                                        {order.displayStatus}
+                                    </span>
+                                </template>
                             </div>
 
                             <!-- Order Info Grid -->
@@ -199,10 +196,12 @@
                     <div class="slds-modal__content slds-p-around_medium">
                         <!-- Order Summary -->
                         <div class="modal-order-summary">
-                            <div class="summary-row">
-                                <span class="summary-label">Status:</span>
-                                <span class={selectedOrder.statusClass}>{selectedOrder.displayStatus}</span>
-                            </div>
+                            <template if:true={selectedOrder.displayStatus}>
+                                <div class="summary-row">
+                                    <span class="summary-label">Status:</span>
+                                    <span class={selectedOrder.statusClass}>{selectedOrder.displayStatus}</span>
+                                </div>
+                            </template>
                             <div class="summary-row">
                                 <span class="summary-label">Order Date:</span>
                                 <span>{selectedOrder.formattedOrderDate}</span>

@@ -18,8 +18,13 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
     @track selectedOrder;
     @track showOrderDetails = false;
     @track searchTerm = '';
-    @track startDate;
-    @track endDate;
+    @track dateFilter = 'all';
+
+    dateFilterOptions = [
+        { label: 'All Orders', value: 'all' },
+        { label: 'Last 6 Months', value: '6months' },
+        { label: 'Last 12 Months', value: '12months' }
+    ];
 
     connectedCallback() {
         this.loadOrders();
@@ -29,12 +34,25 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
         this.isLoading = true;
         this.error = null;
 
+        // Calculate date range based on filter
+        let startDate = null;
+        let endDate = null;
+        const today = new Date();
+
+        if (this.dateFilter === '6months') {
+            startDate = new Date(today);
+            startDate.setMonth(today.getMonth() - 6);
+        } else if (this.dateFilter === '12months') {
+            startDate = new Date(today);
+            startDate.setMonth(today.getMonth() - 12);
+        }
+
         getCustomerOrders({
             accountId: this.accountId,
             limitRecords: this.maxOrders,
             searchTerm: this.searchTerm,
-            startDate: this.startDate,
-            endDate: this.endDate
+            startDate: startDate ? startDate.toISOString().split('T')[0] : null,
+            endDate: endDate
         })
             .then(result => {
                 this.orders = result.map(order => ({
@@ -42,8 +60,8 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
                     formattedOrderDate: this.formatDate(order.orderDate),
                     formattedDeliveryDate: this.formatDate(order.revisedDeliveryDateSAP || order.estimatedDeliveryDate),
                     formattedTotal: this.formatCurrency(order.totalAmount),
-                    displayStatus: order.productionStatusSAP || order.orderStatus,
-                    statusClass: this.getStatusClass(order.productionStatusSAP || order.orderStatus),
+                    displayStatus: order.productionStatusSAP,
+                    statusClass: this.getStatusClass(order.productionStatusSAP),
                     displayCustomerPO: order.customerPoNumberSAP || order.customerPoNumber || 'N/A',
                     hasMultipleItems: order.itemCount > 1,
                     itemCountLabel: `${order.itemCount} item${order.itemCount !== 1 ? 's' : ''}`
@@ -212,20 +230,14 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
         this.loadOrders();
     }
 
-    handleStartDateChange(event) {
-        this.startDate = event.target.value;
-        this.loadOrders();
-    }
-
-    handleEndDateChange(event) {
-        this.endDate = event.target.value;
+    handleDateFilterChange(event) {
+        this.dateFilter = event.detail.value;
         this.loadOrders();
     }
 
     handleClearFilters() {
         this.searchTerm = '';
-        this.startDate = null;
-        this.endDate = null;
+        this.dateFilter = 'all';
         this.loadOrders();
     }
 }

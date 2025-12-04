@@ -48,7 +48,7 @@
     flex-wrap: wrap;
 }
 
-.date-filters lightning-input {
+.date-filters lightning-combobox {
     flex: 1;
     min-width: 200px;
 }
@@ -65,7 +65,7 @@
     }
 
     .search-box lightning-input,
-    .date-filters lightning-input {
+    .date-filters lightning-combobox {
         width: 100%;
     }
 
@@ -105,16 +105,10 @@
 
 /* Orders Grid */
 .orders-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
     margin-bottom: 2rem;
-}
-
-@media (max-width: 768px) {
-    .orders-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 /* Order Tile */
