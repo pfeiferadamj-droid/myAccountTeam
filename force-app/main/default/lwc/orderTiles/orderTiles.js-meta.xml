@@ -12,7 +12,7 @@
         <target>lightningCommunity__Default</target>
     </targets>
     <targetConfigs>
-        <targetConfig targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage,lightningCommunity__Page,lightningCommunity__Default">
+        <targetConfig targets="lightning__AppPage,lightning__RecordPage,lightning__HomePage,lightningCommunity__Default">
             <property name="accountId" type="String" label="Account ID" description="The Account ID to fetch orders for (leave blank to use current user's account)" />
             <property name="maxOrders" type="Integer" default="50" label="Maximum Orders" description="Maximum number of orders to display" />
             <property name="cardTitle" type="String" default="My Orders" label="Card Title" description="Title displayed at the top of the component" />
