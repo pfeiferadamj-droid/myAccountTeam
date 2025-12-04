@@ -1,0 +1,256 @@
+<template>
+    <div class="order-tiles-container">
+        <!-- Header -->
+        <div class="component-header">
+            <h2 class="header-title">{cardTitle}</h2>
+        </div>
+
+        <!-- Loading State -->
+        <template if:true={isLoading}>
+            <div class="loading-container">
+                <lightning-spinner alternative-text="Loading orders..." size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Error State -->
+        <template if:true={error}>
+            <div class="error-container">
+                <div class="error-message">
+                    <lightning-icon icon-name="utility:error" size="small" variant="error"></lightning-icon>
+                    <span class="error-text">{error}</span>
+                </div>
+            </div>
+        </template>
+
+        <!-- Orders Grid -->
+        <template if:true={hasOrders}>
+            <div class="orders-grid">
+                <template for:each={orders} for:item="order">
+                    <article key={order.orderId} class="order-tile">
+                        <!-- Order Image -->
+                        <div class="order-image-container">
+                            <img
+                                src={order.displayImage}
+                                alt={order.orderNumber}
+                                class="order-image"
+                                onerror="this.src='/sfsites/c/resource/placeholder_product_image'"
+                            />
+                            <template if:true={order.hasMultipleItems}>
+                                <div class="item-count-badge">
+                                    {order.itemCountLabel}
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- Order Details -->
+                        <div class="order-details">
+                            <!-- Order Number and Status -->
+                            <div class="order-header">
+                                <h3 class="order-number">Order #{order.orderNumber}</h3>
+                                <span class={order.statusClass}>
+                                    {order.orderStatus}
+                                </span>
+                            </div>
+
+                            <!-- Order Info Grid -->
+                            <div class="order-info-grid">
+                                <!-- Order Date -->
+                                <div class="info-item">
+                                    <lightning-icon
+                                        icon-name="utility:date_input"
+                                        size="xx-small"
+                                        class="info-icon">
+                                    </lightning-icon>
+                                    <div class="info-content">
+                                        <span class="info-label">Order Date</span>
+                                        <span class="info-value">{order.formattedOrderDate}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Delivery Date -->
+                                <div class="info-item">
+                                    <lightning-icon
+                                        icon-name="utility:truck"
+                                        size="xx-small"
+                                        class="info-icon">
+                                    </lightning-icon>
+                                    <div class="info-content">
+                                        <span class="info-label">Est. Delivery</span>
+                                        <span class="info-value">{order.formattedDeliveryDate}</span>
+                                    </div>
+                                </div>
+
+                                <!-- Customer PO -->
+                                <template if:true={order.customerPoNumber}>
+                                    <div class="info-item">
+                                        <lightning-icon
+                                            icon-name="utility:note"
+                                            size="xx-small"
+                                            class="info-icon">
+                                        </lightning-icon>
+                                        <div class="info-content">
+                                            <span class="info-label">PO Number</span>
+                                            <span class="info-value">{order.customerPoNumber}</span>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Order Total -->
+                                <div class="info-item">
+                                    <lightning-icon
+                                        icon-name="utility:money"
+                                        size="xx-small"
+                                        class="info-icon">
+                                    </lightning-icon>
+                                    <div class="info-content">
+                                        <span class="info-label">Total</span>
+                                        <span class="info-value total-amount">{order.formattedTotal}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                <template if:true={showViewDetailsButton}>
+                                    <lightning-button
+                                        label="View Details"
+                                        variant="neutral"
+                                        class="action-button"
+                                        data-order-id={order.orderId}
+                                        onclick={handleViewDetails}>
+                                    </lightning-button>
+                                </template>
+
+                                <template if:true={showReorderButton}>
+                                    <lightning-button
+                                        label="Start Reorder"
+                                        variant="brand"
+                                        class="action-button"
+                                        data-order-id={order.orderId}
+                                        onclick={handleReorder}>
+                                    </lightning-button>
+                                </template>
+                            </div>
+                        </div>
+                    </article>
+                </template>
+            </div>
+        </template>
+
+        <!-- No Orders State -->
+        <template if:false={hasOrders}>
+            <template if:false={isLoading}>
+                <div class="no-orders-container">
+                    <lightning-icon
+                        icon-name="utility:shopping_bag"
+                        size="large"
+                        class="no-orders-icon">
+                    </lightning-icon>
+                    <p class="no-orders-message">{noOrdersMessage}</p>
+                </div>
+            </template>
+        </template>
+
+        <!-- Order Details Modal -->
+        <template if:true={showOrderDetails}>
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <!-- Modal Header -->
+                    <header class="slds-modal__header">
+                        <button
+                            class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                            onclick={handleCloseDetails}>
+                            <lightning-icon
+                                icon-name="utility:close"
+                                size="small"
+                                alternative-text="Close">
+                            </lightning-icon>
+                        </button>
+                        <h2 class="slds-modal__title">Order #{selectedOrder.orderNumber}</h2>
+                    </header>
+
+                    <!-- Modal Body -->
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <!-- Order Summary -->
+                        <div class="modal-order-summary">
+                            <div class="summary-row">
+                                <span class="summary-label">Status:</span>
+                                <span class={selectedOrder.statusClass}>{selectedOrder.orderStatus}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Order Date:</span>
+                                <span>{selectedOrder.formattedOrderDate}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Est. Delivery:</span>
+                                <span>{selectedOrder.formattedDeliveryDate}</span>
+                            </div>
+                            <template if:true={selectedOrder.customerPoNumber}>
+                                <div class="summary-row">
+                                    <span class="summary-label">PO Number:</span>
+                                    <span>{selectedOrder.customerPoNumber}</span>
+                                </div>
+                            </template>
+                            <div class="summary-row">
+                                <span class="summary-label">Total:</span>
+                                <span class="total-amount">{selectedOrder.formattedTotal}</span>
+                            </div>
+                        </div>
+
+                        <!-- Line Items -->
+                        <div class="line-items-section">
+                            <h3 class="section-title">Order Items</h3>
+                            <template for:each={selectedOrder.lineItems} for:item="lineItem">
+                                <div key={lineItem.lineItemId} class="line-item">
+                                    <img
+                                        src={lineItem.displayImage}
+                                        alt={lineItem.productName}
+                                        class="line-item-image"
+                                        onerror="this.src='/sfsites/c/resource/placeholder_product_image'"
+                                    />
+                                    <div class="line-item-details">
+                                        <h4 class="line-item-name">{lineItem.productName}</h4>
+                                        <p class="line-item-sku">SKU: {lineItem.productSku}</p>
+                                        <div class="line-item-info">
+                                            <span class="line-item-quantity">Qty: {lineItem.quantity}</span>
+                                            <span class="line-item-price">{lineItem.formattedUnitPrice} each</span>
+                                        </div>
+                                        <template if:true={lineItem.formattedDeliveryDate}>
+                                            <p class="line-item-delivery">
+                                                Est. Delivery: {lineItem.formattedDeliveryDate}
+                                            </p>
+                                        </template>
+                                        <template if:true={lineItem.lineStatus}>
+                                            <p class="line-item-status">Status: {lineItem.lineStatus}</p>
+                                        </template>
+                                    </div>
+                                    <div class="line-item-total">
+                                        {lineItem.formattedTotalPrice}
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <footer class="slds-modal__footer">
+                        <lightning-button
+                            label="Close"
+                            variant="neutral"
+                            onclick={handleCloseDetails}>
+                        </lightning-button>
+                        <template if:true={showReorderButton}>
+                            <lightning-button
+                                label="Reorder"
+                                variant="brand"
+                                data-order-id={selectedOrder.orderId}
+                                onclick={handleReorder}>
+                            </lightning-button>
+                        </template>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+    </div>
+</template>
