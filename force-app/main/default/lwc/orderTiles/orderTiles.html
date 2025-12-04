@@ -29,11 +29,11 @@
                     <article key={order.orderId} class="order-tile">
                         <!-- Order Details -->
                         <div class="order-details">
-                            <!-- Order Number and Status -->
+                            <!-- Customer PO Number and Status -->
                             <div class="order-header">
-                                <h3 class="order-number">Order #{order.orderNumber}</h3>
+                                <h3 class="order-number">{order.displayCustomerPO}</h3>
                                 <span class={order.statusClass}>
-                                    {order.orderStatus}
+                                    {order.displayStatus}
                                 </span>
                             </div>
 
@@ -151,7 +151,7 @@
                                 alternative-text="Close">
                             </lightning-icon>
                         </button>
-                        <h2 class="slds-modal__title">Order #{selectedOrder.orderNumber}</h2>
+                        <h2 class="slds-modal__title">{selectedOrder.displayCustomerPO}</h2>
                     </header>
 
                     <!-- Modal Body -->
@@ -160,7 +160,7 @@
                         <div class="modal-order-summary">
                             <div class="summary-row">
                                 <span class="summary-label">Status:</span>
-                                <span class={selectedOrder.statusClass}>{selectedOrder.orderStatus}</span>
+                                <span class={selectedOrder.statusClass}>{selectedOrder.displayStatus}</span>
                             </div>
                             <div class="summary-row">
                                 <span class="summary-label">Order Date:</span>

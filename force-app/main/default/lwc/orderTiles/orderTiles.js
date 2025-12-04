@@ -33,9 +33,11 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
                 this.orders = result.map(order => ({
                     ...order,
                     formattedOrderDate: this.formatDate(order.orderDate),
-                    formattedDeliveryDate: this.formatDate(order.estimatedDeliveryDate),
+                    formattedDeliveryDate: this.formatDate(order.revisedDeliveryDateSAP || order.estimatedDeliveryDate),
                     formattedTotal: this.formatCurrency(order.totalAmount),
-                    statusClass: this.getStatusClass(order.orderStatus),
+                    displayStatus: order.productionStatusSAP || order.orderStatus,
+                    statusClass: this.getStatusClass(order.productionStatusSAP || order.orderStatus),
+                    displayCustomerPO: order.customerPoNumberSAP || order.customerPoNumber || 'N/A',
                     hasMultipleItems: order.itemCount > 1,
                     itemCountLabel: `${order.itemCount} item${order.itemCount !== 1 ? 's' : ''}`
                 }));

@@ -11,10 +11,13 @@ public with sharing class OrderTilesController {
         @AuraEnabled public String orderId;
         @AuraEnabled public String orderNumber;
         @AuraEnabled public String customerPoNumber;
+        @AuraEnabled public String customerPoNumberSAP;
         @AuraEnabled public Decimal totalAmount;
         @AuraEnabled public Date orderDate;
         @AuraEnabled public String orderStatus;
+        @AuraEnabled public String productionStatusSAP;
         @AuraEnabled public Date estimatedDeliveryDate;
+        @AuraEnabled public Date revisedDeliveryDateSAP;
         @AuraEnabled public List<OrderLineItem> lineItems;
         @AuraEnabled public Integer itemCount;
     }
@@ -58,10 +61,12 @@ public with sharing class OrderTilesController {
             List<Order> orders = [
                 SELECT Id, OrderNumber, PoNumber, TotalAmount,
                        EffectiveDate, Status, CreatedDate, AccountId,
+                       Customer_PO_Number_SAP__c, Production_Status_SAP__c,
+                       Revised_Delivery_Date_SAP__c,
                        (SELECT Id, Product2Id, Product2.Name, Product2.ProductCode,
-                               Product2.StockKeepingUnit, Quantity, UnitPrice,
-                               TotalPrice, ServiceDate, Description,
-                               OrderItemNumber
+                               Product2.StockKeepingUnit, Product2.Family,
+                               Quantity, UnitPrice, TotalPrice, ServiceDate,
+                               Description, OrderItemNumber
                         FROM OrderItems
                         ORDER BY OrderItemNumber)
                 FROM Order
@@ -109,16 +114,24 @@ public with sharing class OrderTilesController {
             orderData.orderId = ord.Id;
             orderData.orderNumber = ord.OrderNumber;
             orderData.customerPoNumber = ord.PoNumber;
+            orderData.customerPoNumberSAP = ord.Customer_PO_Number_SAP__c;
             orderData.totalAmount = ord.TotalAmount;
             orderData.orderDate = ord.EffectiveDate;
             orderData.orderStatus = ord.Status;
-            orderData.itemCount = ord.OrderItems.size();
+            orderData.productionStatusSAP = ord.Production_Status_SAP__c;
+            orderData.revisedDeliveryDateSAP = ord.Revised_Delivery_Date_SAP__c;
 
-            // Transform line items
+            // Transform line items (excluding shipping products)
             List<OrderLineItem> lineItems = new List<OrderLineItem>();
             Date earliestDelivery = null;
+            Date earliestRevisedDelivery = null;
 
             for (OrderItem oi : ord.OrderItems) {
+                // Skip shipping products
+                if (isShippingProduct(oi)) {
+                    continue;
+                }
+
                 OrderLineItem lineItem = new OrderLineItem();
                 lineItem.lineItemId = oi.Id;
                 lineItem.productId = oi.Product2Id;
@@ -132,7 +145,7 @@ public with sharing class OrderTilesController {
                 lineItem.estimatedDeliveryDate = oi.ServiceDate;
                 lineItem.lineStatus = 'Active'; // Customize based on your status field
 
-                // Track earliest delivery date
+                // Track earliest delivery date (standard)
                 if (oi.ServiceDate != null) {
                     if (earliestDelivery == null || oi.ServiceDate < earliestDelivery) {
                         earliestDelivery = oi.ServiceDate;
@@ -143,12 +156,46 @@ public with sharing class OrderTilesController {
             }
 
             orderData.lineItems = lineItems;
+            orderData.itemCount = lineItems.size();
             orderData.estimatedDeliveryDate = earliestDelivery;
 
             orderDataList.add(orderData);
         }
 
         return orderDataList;
+    }
+
+    /**
+     * @description Check if an order item is a shipping product
+     * @param orderItem The OrderItem to check
+     * @return True if this is a shipping product
+     */
+    private static Boolean isShippingProduct(OrderItem orderItem) {
+        if (orderItem.Product2Id == null) {
+            return false;
+        }
+
+        // Check Product Family
+        if (orderItem.Product2.Family != null &&
+            orderItem.Product2.Family.containsIgnoreCase('Shipping')) {
+            return true;
+        }
+
+        // Check Product Code
+        if (orderItem.Product2.ProductCode != null &&
+            (orderItem.Product2.ProductCode.containsIgnoreCase('SHIP') ||
+             orderItem.Product2.ProductCode.containsIgnoreCase('FREIGHT'))) {
+            return true;
+        }
+
+        // Check Product Name
+        if (orderItem.Product2.Name != null &&
+            (orderItem.Product2.Name.containsIgnoreCase('Shipping') ||
+             orderItem.Product2.Name.containsIgnoreCase('Freight'))) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
