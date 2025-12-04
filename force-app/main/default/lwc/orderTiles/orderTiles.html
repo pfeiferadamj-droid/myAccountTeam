@@ -27,21 +27,6 @@
             <div class="orders-grid">
                 <template for:each={orders} for:item="order">
                     <article key={order.orderId} class="order-tile">
-                        <!-- Order Image -->
-                        <div class="order-image-container">
-                            <img
-                                src={order.displayImage}
-                                alt={order.orderNumber}
-                                class="order-image"
-                                onerror="this.src='/sfsites/c/resource/placeholder_product_image'"
-                            />
-                            <template if:true={order.hasMultipleItems}>
-                                <div class="item-count-badge">
-                                    {order.itemCountLabel}
-                                </div>
-                            </template>
-                        </div>
-
                         <!-- Order Details -->
                         <div class="order-details">
                             <!-- Order Number and Status -->
@@ -202,12 +187,6 @@
                             <h3 class="section-title">Order Items</h3>
                             <template for:each={selectedOrder.lineItems} for:item="lineItem">
                                 <div key={lineItem.lineItemId} class="line-item">
-                                    <img
-                                        src={lineItem.displayImage}
-                                        alt={lineItem.productName}
-                                        class="line-item-image"
-                                        onerror="this.src='/sfsites/c/resource/placeholder_product_image'"
-                                    />
                                     <div class="line-item-details">
                                         <h4 class="line-item-name">{lineItem.productName}</h4>
                                         <p class="line-item-sku">SKU: {lineItem.productSku}</p>

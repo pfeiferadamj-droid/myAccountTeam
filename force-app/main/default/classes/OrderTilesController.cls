@@ -12,12 +12,10 @@ public with sharing class OrderTilesController {
         @AuraEnabled public String orderNumber;
         @AuraEnabled public String customerPoNumber;
         @AuraEnabled public Decimal totalAmount;
-        @AuraEnabled public String currencyCode;
         @AuraEnabled public Date orderDate;
         @AuraEnabled public String orderStatus;
         @AuraEnabled public Date estimatedDeliveryDate;
         @AuraEnabled public List<OrderLineItem> lineItems;
-        @AuraEnabled public String primaryProductImage;
         @AuraEnabled public Integer itemCount;
     }
 
@@ -34,7 +32,6 @@ public with sharing class OrderTilesController {
         @AuraEnabled public Decimal totalPrice;
         @AuraEnabled public String lineStatus;
         @AuraEnabled public Date estimatedDeliveryDate;
-        @AuraEnabled public String productImageUrl;
     }
 
     /**
@@ -59,7 +56,7 @@ public with sharing class OrderTilesController {
 
             // Query orders with related line items
             List<Order> orders = [
-                SELECT Id, OrderNumber, PoNumber, TotalAmount, CurrencyIsoCode,
+                SELECT Id, OrderNumber, PoNumber, TotalAmount,
                        EffectiveDate, Status, CreatedDate, AccountId,
                        (SELECT Id, Product2Id, Product2.Name, Product2.ProductCode,
                                Product2.StockKeepingUnit, Quantity, UnitPrice,
@@ -107,26 +104,12 @@ public with sharing class OrderTilesController {
     private static List<OrderData> transformOrderData(List<Order> orders) {
         List<OrderData> orderDataList = new List<OrderData>();
 
-        // Collect all product IDs for image lookup
-        Set<Id> productIds = new Set<Id>();
-        for (Order ord : orders) {
-            for (OrderItem oi : ord.OrderItems) {
-                if (oi.Product2Id != null) {
-                    productIds.add(oi.Product2Id);
-                }
-            }
-        }
-
-        // Get product images
-        Map<Id, String> productImageMap = getProductImages(productIds);
-
         for (Order ord : orders) {
             OrderData orderData = new OrderData();
             orderData.orderId = ord.Id;
             orderData.orderNumber = ord.OrderNumber;
             orderData.customerPoNumber = ord.PoNumber;
             orderData.totalAmount = ord.TotalAmount;
-            orderData.currencyCode = ord.CurrencyIsoCode;
             orderData.orderDate = ord.EffectiveDate;
             orderData.orderStatus = ord.Status;
             orderData.itemCount = ord.OrderItems.size();
@@ -134,7 +117,6 @@ public with sharing class OrderTilesController {
             // Transform line items
             List<OrderLineItem> lineItems = new List<OrderLineItem>();
             Date earliestDelivery = null;
-            String primaryImage = null;
 
             for (OrderItem oi : ord.OrderItems) {
                 OrderLineItem lineItem = new OrderLineItem();
@@ -150,14 +132,6 @@ public with sharing class OrderTilesController {
                 lineItem.estimatedDeliveryDate = oi.ServiceDate;
                 lineItem.lineStatus = 'Active'; // Customize based on your status field
 
-                // Get product image
-                if (productImageMap.containsKey(oi.Product2Id)) {
-                    lineItem.productImageUrl = productImageMap.get(oi.Product2Id);
-                    if (primaryImage == null) {
-                        primaryImage = lineItem.productImageUrl;
-                    }
-                }
-
                 // Track earliest delivery date
                 if (oi.ServiceDate != null) {
                     if (earliestDelivery == null || oi.ServiceDate < earliestDelivery) {
@@ -170,47 +144,11 @@ public with sharing class OrderTilesController {
 
             orderData.lineItems = lineItems;
             orderData.estimatedDeliveryDate = earliestDelivery;
-            orderData.primaryProductImage = primaryImage;
 
             orderDataList.add(orderData);
         }
 
         return orderDataList;
-    }
-
-    /**
-     * @description Get product images from ProductMedia
-     * @param productIds Set of Product IDs
-     * @return Map of Product ID to image URL
-     */
-    private static Map<Id, String> getProductImages(Set<Id> productIds) {
-        Map<Id, String> imageMap = new Map<Id, String>();
-
-        if (productIds.isEmpty()) {
-            return imageMap;
-        }
-
-        try {
-            // Query ProductMedia for product images
-            List<ProductMedia> productMedias = [
-                SELECT ProductId, MediaUrl, Title
-                FROM ProductMedia
-                WHERE ProductId IN :productIds
-                  AND MediaType = 'Image'
-                ORDER BY SortOrder ASC NULLS LAST
-            ];
-
-            for (ProductMedia pm : productMedias) {
-                if (!imageMap.containsKey(pm.ProductId)) {
-                    imageMap.put(pm.ProductId, pm.MediaUrl);
-                }
-            }
-        } catch (Exception e) {
-            // ProductMedia might not be available in all orgs
-            System.debug('Error fetching product images: ' + e.getMessage());
-        }
-
-        return imageMap;
     }
 
     /**

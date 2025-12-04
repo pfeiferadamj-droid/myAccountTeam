@@ -6,9 +6,8 @@ A custom Lightning Web Component (LWC) for Salesforce B2B Commerce storefronts t
 
 - **Order Tiles Display**: Shows customer orders in a responsive grid layout with key information
 - **Order Details**: Displays order number, date, status, PO number, estimated delivery, and total
-- **Product Images**: Shows primary product image for each order with multi-item badge
 - **Line Item Details**: View detailed line-level information including:
-  - Product name, SKU, and image
+  - Product name and SKU
   - Quantity and pricing (unit and total)
   - Line-level status
   - Estimated delivery date per line item
@@ -66,7 +65,7 @@ force-app/main/default/
 
 4. **Assign permissions** (if needed):
    - Ensure users have access to the `OrderTilesController` Apex class
-   - Grant object permissions for Order, OrderItem, Product2, and ProductMedia objects
+   - Grant object permissions for Order, OrderItem, and Product2 objects
 
 ## Configuration
 
@@ -181,7 +180,7 @@ Example color customization:
 ### Order Object Fields Used
 
 - `Id`, `OrderNumber`, `PoNumber`
-- `TotalAmount`, `CurrencyIsoCode`
+- `TotalAmount`
 - `EffectiveDate`, `Status`
 - `AccountId`
 
@@ -196,10 +195,6 @@ Example color customization:
 
 - `Name`, `ProductCode`, `StockKeepingUnit`
 
-### ProductMedia (Optional)
-
-- `MediaUrl`, `MediaType`, `SortOrder`
-
 ## Troubleshooting
 
 ### No Orders Displayed
@@ -207,13 +202,6 @@ Example color customization:
 1. Verify the user's account has associated orders
 2. Check order status (component excludes 'Draft' orders)
 3. Verify user permissions on Order and OrderItem objects
-
-### Images Not Loading
-
-1. Check ProductMedia records exist for products
-2. Verify MediaUrl field contains valid URLs
-3. Ensure Content Security Policy allows image URLs
-4. Update the default image path in `getDefaultImage()` method
 
 ### Reorder Not Working
 
@@ -269,3 +257,4 @@ This component is provided as-is for use in Salesforce B2B Commerce implementati
   - View details modal
   - Reorder placeholder functionality
   - Responsive design
+  - USD currency formatting (images and multi-currency support planned for future release)

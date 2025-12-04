@@ -34,11 +34,10 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
                     ...order,
                     formattedOrderDate: this.formatDate(order.orderDate),
                     formattedDeliveryDate: this.formatDate(order.estimatedDeliveryDate),
-                    formattedTotal: this.formatCurrency(order.totalAmount, order.currencyCode),
+                    formattedTotal: this.formatCurrency(order.totalAmount),
                     statusClass: this.getStatusClass(order.orderStatus),
                     hasMultipleItems: order.itemCount > 1,
-                    itemCountLabel: `${order.itemCount} item${order.itemCount !== 1 ? 's' : ''}`,
-                    displayImage: order.primaryProductImage || this.getDefaultImage()
+                    itemCountLabel: `${order.itemCount} item${order.itemCount !== 1 ? 's' : ''}`
                 }));
                 this.isLoading = false;
             })
@@ -59,12 +58,12 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
         }).format(date);
     }
 
-    formatCurrency(amount, currencyCode = 'USD') {
+    formatCurrency(amount) {
         if (amount === null || amount === undefined) return 'N/A';
 
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: currencyCode
+            currency: 'USD'
         }).format(amount);
     }
 
@@ -80,11 +79,6 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
         return statusMap[status] || 'status-default';
     }
 
-    getDefaultImage() {
-        // Return a default product image URL or placeholder
-        return '/sfsites/c/resource/placeholder_product_image';
-    }
-
     handleViewDetails(event) {
         const orderId = event.currentTarget.dataset.orderId;
         const order = this.orders.find(o => o.orderId === orderId);
@@ -94,10 +88,9 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
                 ...order,
                 lineItems: order.lineItems.map(item => ({
                     ...item,
-                    formattedUnitPrice: this.formatCurrency(item.unitPrice, order.currencyCode),
-                    formattedTotalPrice: this.formatCurrency(item.totalPrice, order.currencyCode),
-                    formattedDeliveryDate: this.formatDate(item.estimatedDeliveryDate),
-                    displayImage: item.productImageUrl || this.getDefaultImage()
+                    formattedUnitPrice: this.formatCurrency(item.unitPrice),
+                    formattedTotalPrice: this.formatCurrency(item.totalPrice),
+                    formattedDeliveryDate: this.formatDate(item.estimatedDeliveryDate)
                 }))
             };
             this.showOrderDetails = true;
