@@ -117,7 +117,7 @@ export default class OrderTiles extends NavigationMixin(LightningElement) {
                     ...item,
                     formattedUnitPrice: this.formatCurrency(item.unitPrice),
                     formattedTotalPrice: this.formatCurrency(item.totalPrice),
-                    formattedDeliveryDate: this.formatDate(item.estimatedDeliveryDate)
+                    formattedDeliveryDate: this.formatDate(item.revisedDeliveryDateSAP || item.estimatedDeliveryDate)
                 }))
             };
             this.showOrderDetails = true;
