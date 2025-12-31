@@ -2,6 +2,7 @@ import { LightningElement, wire } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getAccountTeamMembers from '@salesforce/apex/MyAccountTeamController.getAccountTeamMembers';
 
+// Updated to use B2B_Store_Defaults__mdt configuration
 export default class MyAccountTeam extends LightningElement {
     teamMembers = [];
     storeConfig = null;
