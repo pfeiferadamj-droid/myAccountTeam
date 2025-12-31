@@ -33,12 +33,10 @@ export default class MyAccountTeam extends LightningElement {
     }
 
     getCMSImageUrl(contentKey) {
-        // CMS Delivery API format (Salesforce B2B Commerce)
-        // Update channelId and oid with your org's values if these don't work
-        const channelId = '0apbb0000000X43AAE';  // Your Experience Cloud channel ID
-        const oid = '00Dbb000002OTxNEAW';        // Your organization ID
-
-        return `/cms/delivery/media/${contentKey}?channelId=${channelId}&oid=${oid}`;
+        // Standard Salesforce ContentVersion download path
+        // contentKey should be the ContentVersion ID (e.g., 068...)
+        // This path works in Experience Cloud without needing hardcoded channelId/oid
+        return `/sfc/servlet.shepherd/version/renditionDownload?rendition=ORIGINAL_Png&versionId=${contentKey}`;
     }
 
     get hasTeamMembers() {
@@ -74,7 +72,12 @@ export default class MyAccountTeam extends LightningElement {
         }
 
         // Open default email client with all team members in TO field
+        // Using anchor element approach for better compatibility in Experience Cloud
         console.log('Opening mailto with:', emails);
-        window.location.href = `mailto:${emails}`;
+        const mailtoLink = `mailto:${emails}`;
+        const anchor = document.createElement('a');
+        anchor.href = mailtoLink;
+        anchor.target = '_self';
+        anchor.click();
     }
 }
