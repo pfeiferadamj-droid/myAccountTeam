@@ -4,6 +4,7 @@ import getAccountTeamMembers from '@salesforce/apex/MyAccountTeamController.getA
 
 export default class MyAccountTeam extends LightningElement {
     teamMembers = [];
+    storeConfig = null;
     error;
     isLoading = true;
 
@@ -12,7 +13,13 @@ export default class MyAccountTeam extends LightningElement {
         this.isLoading = false;
         if (data) {
             console.log('Raw data from Apex:', JSON.stringify(data, null, 2));
-            this.teamMembers = data.map(member => {
+
+            // Store configuration from custom metadata
+            this.storeConfig = data.storeConfig;
+            console.log('Store Config:', this.storeConfig);
+
+            // Process team members
+            this.teamMembers = data.teamMembers.map(member => {
                 console.log('Processing member:', member.name);
                 console.log('  - Title:', member.title);
                 console.log('  - Email:', member.email);
@@ -33,10 +40,18 @@ export default class MyAccountTeam extends LightningElement {
     }
 
     getCMSImageUrl(contentKey) {
-        // Standard Salesforce ContentVersion download path
-        // contentKey should be the ContentVersion ID (e.g., 068...)
-        // This path works in Experience Cloud without needing hardcoded channelId/oid
-        return `/sfc/servlet.shepherd/version/renditionDownload?rendition=ORIGINAL_Png&versionId=${contentKey}`;
+        // Use CMS Delivery API with values from B2B_Store_Defaults__mdt
+        if (!this.storeConfig) {
+            console.warn('Store config not loaded, using fallback image URL');
+            return `/sfc/servlet.shepherd/version/renditionDownload?rendition=ORIGINAL_Png&versionId=${contentKey}`;
+        }
+
+        const channelId = this.storeConfig.channelId;
+        const oid = this.storeConfig.organizationId;
+
+        console.log(`Generating CMS URL - ContentKey: ${contentKey}, ChannelId: ${channelId}, OID: ${oid}`);
+
+        return `/cms/delivery/media/${contentKey}?channelId=${channelId}&oid=${oid}`;
     }
 
     get hasTeamMembers() {
