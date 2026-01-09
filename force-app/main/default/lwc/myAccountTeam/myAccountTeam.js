@@ -41,7 +41,7 @@ export default class MyAccountTeam extends LightningElement {
     }
 
     getCMSImageUrl(contentKey) {
-        // Use CMS Delivery API with values from B2B_Store_Defaults__mdt
+        // Use CDN CMS Delivery API with values from B2B_Store_Defaults__mdt
         if (!this.storeConfig) {
             console.warn('Store config not loaded, using fallback image URL');
             return `/sfc/servlet.shepherd/version/renditionDownload?rendition=ORIGINAL_Png&versionId=${contentKey}`;
@@ -52,7 +52,8 @@ export default class MyAccountTeam extends LightningElement {
 
         console.log(`Generating CMS URL - ContentKey: ${contentKey}, ChannelId: ${channelId}, OID: ${oid}`);
 
-        return `/cms/delivery/media/${contentKey}?channelId=${channelId}&oid=${oid}`;
+        // CDN path with Cloudflare image optimization
+        return `/cdn-cgi/image/format=auto,onerror=redirect/sfsites/c/cms/delivery/media/${contentKey}?version=1.1&channelId=${channelId}&oid=${oid}`;
     }
 
     get hasTeamMembers() {
