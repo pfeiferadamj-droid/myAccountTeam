@@ -39,24 +39,29 @@ public with sharing class MyAccountTeamController {
                 ORDER BY Is_Owner__c DESC, Team_Member_User__r.Name
             ];
 
+            // Deduplicate by user ID, merging isOwner flag
+            Map<Id, TeamMember> membersByUserId = new Map<Id, TeamMember>();
             for (My_Account_Team_Member__c atm : accountTeam) {
-                TeamMember member = new TeamMember();
-                member.id = atm.Team_Member_User__c;
-                member.name = atm.Team_Member_User__r.Name;
-                member.title = atm.Member_Title__c;
-                member.email = atm.Member_Email__c;
-                member.contentKey = atm.Member_ContentKey__c;
-                member.isOwner = atm.Is_Owner__c != null ? atm.Is_Owner__c : false;
+                Id userId = atm.Team_Member_User__c;
+                Boolean isOwner = atm.Is_Owner__c != null ? atm.Is_Owner__c : false;
 
-                // Debug logging
-                System.debug('Team Member: ' + atm.Team_Member_User__r.Name);
-                System.debug('Member Title: ' + atm.Member_Title__c);
-                System.debug('Member Email: ' + atm.Member_Email__c);
-                System.debug('Member ContentKey: ' + atm.Member_ContentKey__c);
-                System.debug('Is Owner: ' + member.isOwner);
-
-                teamMembers.add(member);
+                if (membersByUserId.containsKey(userId)) {
+                    // Merge: preserve isOwner if any record has it
+                    if (isOwner) {
+                        membersByUserId.get(userId).isOwner = true;
+                    }
+                } else {
+                    TeamMember member = new TeamMember();
+                    member.id = userId;
+                    member.name = atm.Team_Member_User__r.Name;
+                    member.title = atm.Member_Title__c;
+                    member.email = atm.Member_Email__c;
+                    member.contentKey = atm.Member_ContentKey__c;
+                    member.isOwner = isOwner;
+                    membersByUserId.put(userId, member);
+                }
             }
+            teamMembers.addAll(membersByUserId.values());
 
             // Debug total results
             System.debug('Total team members returned: ' + teamMembers.size());
