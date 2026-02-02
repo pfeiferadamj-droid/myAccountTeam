@@ -4,6 +4,7 @@ import getAccountTeamMembers from '@salesforce/apex/MyAccountTeamController.getA
 
 export default class MyAccountTeam extends LightningElement {
     teamMembers = [];
+    storeConfig;
     error;
     isLoading = true;
 
@@ -11,19 +12,14 @@ export default class MyAccountTeam extends LightningElement {
     wiredTeamMembers({ error, data }) {
         this.isLoading = false;
         if (data) {
-            console.log('Raw data from Apex:', JSON.stringify(data, null, 2));
-            this.teamMembers = data.map(member => {
-                console.log('Processing member:', member.name);
-                console.log('  - Title:', member.title);
-                console.log('  - Email:', member.email);
-                console.log('  - ContentKey:', member.contentKey);
+            this.storeConfig = data.storeConfig;
+            this.teamMembers = data.teamMembers.map(member => {
                 return {
                     ...member,
                     mailtoLink: `mailto:${member.email}`,
                     photoUrl: member.contentKey ? this.getCMSImageUrl(member.contentKey) : null
                 };
             });
-            console.log('Processed teamMembers:', JSON.stringify(this.teamMembers, null, 2));
             this.error = undefined;
         } else if (error) {
             this.error = error.body?.message || 'An error occurred while loading team members';
@@ -33,12 +29,10 @@ export default class MyAccountTeam extends LightningElement {
     }
 
     getCMSImageUrl(contentKey) {
-        // CMS Delivery API format (Salesforce B2B Commerce)
-        // Update channelId and oid with your org's values if these don't work
-        const channelId = '0apbb0000000X43AAE';  // Your Experience Cloud channel ID
-        const oid = '00Dbb000002OTxNEAW';        // Your organization ID
-
-        return `/cms/delivery/media/${contentKey}?channelId=${channelId}&oid=${oid}`;
+        if (!this.storeConfig) {
+            return null;
+        }
+        return `/cms/delivery/media/${contentKey}?channelId=${this.storeConfig.channelId}&oid=${this.storeConfig.organizationId}`;
     }
 
     get hasTeamMembers() {
@@ -58,11 +52,8 @@ export default class MyAccountTeam extends LightningElement {
 
     handleContactTeam() {
         const emails = this.allTeamEmails;
-        console.log('Contact Team clicked. Emails:', emails);
-        console.log('Team members:', this.teamMembers);
 
         if (!emails) {
-            console.warn('No email addresses found');
             this.dispatchEvent(
                 new ShowToastEvent({
                     title: 'No Email Addresses',
@@ -73,8 +64,6 @@ export default class MyAccountTeam extends LightningElement {
             return;
         }
 
-        // Open default email client with all team members in TO field
-        console.log('Opening mailto with:', emails);
         window.location.href = `mailto:${emails}`;
     }
 }
